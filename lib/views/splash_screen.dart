@@ -82,11 +82,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 letterSpacing: 2.0, // Memberi sedikit jarak antar huruf agar modern
               ),
             ),
-            const SizedBox(height: 30),
-            // Opsional: Indikator loading yang halus
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurpleAccent),
-            ),
           ],
         ),
       ),
