@@ -46,11 +46,11 @@ class DatabaseHelper {
     final db = await instance.database;
     final maps = await db.query('favorites');
     return maps.map((json) => Game(
-      id: json['id'],
-      name: json['name'],
-      released: json['released'],
-      rating: json['rating'],
-      backgroundImage: json['background_image'],
-    )).toList();
+      id: json['id'] as int,
+      name: json['name'] as String,
+      released: json['released'] as String?,
+      rating: (json['rating'] as num).toDouble(),
+      backgroundImage: json['background_image'] as String?,
+    )).toList();  
   }
 }

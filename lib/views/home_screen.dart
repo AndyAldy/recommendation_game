@@ -10,21 +10,22 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Games For You'),
+        title: const Text('Games For You'),
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(60),
+          preferredSize: const Size.fromHeight(60),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Search...',
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 filled: true,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
               ),
               onSubmitted: (query) {
-                if (query.isNotEmpty) provider.searchGames(query);
-                else {
+                if (query.isNotEmpty) {
+                  provider.searchGames(query);
+                } else {
                   provider.games.clear();
                   provider.currentPage = 1;
                   provider.fetchGames();
@@ -35,27 +36,49 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       body: provider.isLoading && provider.games.isEmpty
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
               itemCount: provider.games.length + 1,
               itemBuilder: (context, index) {
+                // Logic Paging
                 if (index == provider.games.length) {
-                  if (!provider.isLoading) provider.fetchGames();
-                  return Center(child: Padding(padding: EdgeInsets.all(8), child: CircularProgressIndicator()));
+                  if (!provider.isLoading) {
+                    // ✅ SOLUSI: Tunda eksekusi fetchGames sampai frame selesai di-build
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      provider.fetchGames();
+                    });
+                  }
+                  // Tampilkan indikator loading di bawah list
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
                 }
+                
                 final game = provider.games[index];
                 return ListTile(
-                  leading: Image.network(game.backgroundImage ?? '', width: 50, height: 50, fit: BoxFit.cover, errorBuilder: (_,__,___) => Icon(Icons.image)),
+                  leading: Image.network(
+                    game.backgroundImage ?? '', 
+                    width: 50, 
+                    height: 50, 
+                    fit: BoxFit.cover, 
+                    errorBuilder: (_,__,___) => const Icon(Icons.image)
+                  ),
                   title: Text(game.name),
                   subtitle: Text('Release date: ${game.released ?? '-'}'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.star, size: 16, color: Colors.yellow),
+                      const Icon(Icons.star, size: 16, color: Colors.yellow),
                       Text(game.rating.toString()),
                     ],
                   ),
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DetailScreen(game: game))),
+                  onTap: () => Navigator.push(
+                    context, 
+                    MaterialPageRoute(builder: (_) => DetailScreen(game: game))
+                  ),
                 );
               },
             ),
